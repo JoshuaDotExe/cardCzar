@@ -1,0 +1,11 @@
+# Ignores all compiled c files
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
+
