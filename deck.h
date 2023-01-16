@@ -1,12 +1,13 @@
 #include <bitset>
 #include <list>
 #include <unordered_map>
+#include <vector>
 
 class deck{
 private:
     std::string fullSuit[14] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "X"};
     int cardIndex[14] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14};
-    std::bitset<4> valueBitEquivalents[14] = {0001,0010,0011,0100,0101,0110,0111,1000,1001,1010,1011,1100,1101,1110};
+    std::bitset<4> valueBitEquivalents[14] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14};
     std::bitset<2> suitBits[4] = {00,01,10,11};
     std::unordered_map<int, std::string> _indexToStrInit();
     std::unordered_map<int, std::bitset<4>> _indexToBitInit();
@@ -21,8 +22,7 @@ public:
     std::unordered_map<int, std::bitset<4>> indexToBit = _indexToBitInit();
     template<size_t N1, size_t N2>
     std::bitset<N1+N2> bitConcat(std::bitset<N1>, std::bitset<N2>);
-    template<size_t MAX_EXPORT>
-    std::bitset<MAX_EXPORT> exportBits();
+    std::vector<bool> exportBits();
     void build(int, bool);
     void reshuffle();
     void printDeck();
@@ -39,7 +39,7 @@ std::unordered_map<int, std::string> deck::_indexToStrInit(){
 
 std::unordered_map<int, std::bitset<4>> deck::_indexToBitInit(){
     std::unordered_map<int, std::bitset<4>> val;
-    for (int i=0; i<13; i++){
+    for (int i=0; i<14; i++){
         val[cardIndex[i]]=valueBitEquivalents[i];
     }
     return val;
@@ -59,6 +59,7 @@ std::bitset<N1+N2> deck::bitConcat(std::bitset<N1> b1, std::bitset<N2> b2){
     Uses the fisher yates array shuffle method, O(3n)
 */
 void deck::build(int numberOfPacks=1, bool addJokers=false){
+    ignoreSuits = true;
     numOfPacks=numberOfPacks;
     numOfCards=13*4*numOfPacks;
     if(addJokers==true){numOfCards+=numOfPacks*2;}
@@ -78,10 +79,10 @@ void deck::build(int numberOfPacks=1, bool addJokers=false){
         }
     }
     // shuffler
-    for (int i=0; i<numOfCards;i++){
-        int randNum = rand()%numOfCards;
-        std::iter_swap(cards.begin()+i, cards.begin()+randNum);
-    }
+    // for (int i=0; i<numOfCards;i++){
+    //     int randNum = rand()%numOfCards;
+    //     std::iter_swap(cards.begin()+i, cards.begin()+randNum);
+    // }
 }
 
 void deck::reshuffle(){
@@ -93,15 +94,30 @@ void deck::reshuffle(){
 }
 
 void deck::printDeck(){
-    // prints out deck
     std::list<int>::iterator itr;
     for (int i=0; i<numOfCards;i++){
         std::cout << cards.at(i);
     }
     std::cout << std::endl;
 }
-template<size_t MAX_EXPORT>
-std::bitset<MAX_EXPORT> exportBits(){
-    int bitsPerCard=4;
-    //if()
+
+/*
+    Produces a bool vector containing the values of the deck turned into bits.
+    Each card represents 4 or 6 bits. If 6 bits then the first two denote suit,
+    the next 4 denote card value.
+*/
+std::vector<bool> deck::exportBits(){
+    int bitsPerCard = 4;
+    if (ignoreSuits=false){bitsPerCard+=2;}
+    const int totalBits = bitsPerCard*numOfCards;
+    std::vector<bool> deckBits;
+    std::string tempStr;
+    for (int i=0; i<numOfCards;i++){
+        std::bitset<4> tempBit = cards.at(i);
+        tempStr = tempBit.to_string();
+        for (int j=0; j<bitsPerCard;j++){
+            deckBits.push_back(tempStr[j]=='1');
+        }
+    }
+    return deckBits;
 }
