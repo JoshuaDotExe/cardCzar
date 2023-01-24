@@ -5,21 +5,19 @@
 
 class deck{
 private:
-    std::string fullSuit[14] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "X"};
-    int cardIndex[14] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14};
-    std::bitset<4> valueBitEquivalents[14] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14};
-    std::bitset<2> suitBits[4] = {00,01,10,11};
+    char valueID[14] = {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'X'};
+    int cardIndex[14] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13};
+    std::bitset<2> suitBits[4] = {{0x00},{0x01},{0x10},{0x11}};
+    char suitID[4] = {'h', 'd', 'c', 's'};
     std::unordered_map<int, std::string> _indexToStrInit();
-    std::unordered_map<int, std::bitset<4>> _indexToBitInit();
-    std::unordered_map<int, int> _indexToValueInit();
 public:
     bool ignoreSuits;
     bool removeJokers;
     int numOfPacks;
     int numOfCards;
+    int numOfJokers;
     std::vector<int> cards;
     std::unordered_map<int, std::string> indexToStr = _indexToStrInit();
-    std::unordered_map<int, std::bitset<4>> indexToBit = _indexToBitInit();
     template<size_t N1, size_t N2>
     std::bitset<N1+N2> bitConcat(std::bitset<N1>, std::bitset<N2>);
     std::vector<bool> exportBits();
@@ -32,15 +30,7 @@ public:
 std::unordered_map<int, std::string> deck::_indexToStrInit(){
     std::unordered_map<int, std::string> val;
     for (int i=0; i<13; i++){
-        val[cardIndex[i]]=fullSuit[i];
-    }
-    return val;
-}
-
-std::unordered_map<int, std::bitset<4>> deck::_indexToBitInit(){
-    std::unordered_map<int, std::bitset<4>> val;
-    for (int i=0; i<14; i++){
-        val[cardIndex[i]]=valueBitEquivalents[i];
+        val[cardIndex[i]]=valueID[i];
     }
     return val;
 }
@@ -55,9 +45,6 @@ std::bitset<N1+N2> deck::bitConcat(std::bitset<N1> b1, std::bitset<N2> b2){
     return std::bitset<N1+N2>(s1+s2);
 }
 
-/*
-    Uses the fisher yates array shuffle method, O(3n)
-*/
 void deck::build(int numberOfPacks=1, bool addJokers=false){
     ignoreSuits = true;
     numOfPacks=numberOfPacks;
@@ -65,26 +52,15 @@ void deck::build(int numberOfPacks=1, bool addJokers=false){
     if(addJokers==true){numOfCards+=numOfPacks*2;}
     // creates unshuffled deck of cards
     for (int i=0;i<numOfPacks;i++){
-        for (int j=0;j<4;j++){
-            for (int k=1;k<14;k++){
-                cards.push_back(k);
-            }
+        for (int j=1;j<=numOfCards;j++){
+            cards.push_back(j);
         }
     }
-    // adds jokers to deck
-    if(addJokers==true){
-        int numOfJokers = 2*numOfPacks;
-        for (int i=numOfCards-numOfJokers; i<numOfCards; i++){
-            cards.push_back(14);
-        }
-    }
-    // shuffler
-    // for (int i=0; i<numOfCards;i++){
-    //     int randNum = rand()%numOfCards;
-    //     std::iter_swap(cards.begin()+i, cards.begin()+randNum);
-    // }
 }
 
+/*
+    Uses the fisher yates array shuffle method, O(3n)
+*/
 void deck::reshuffle(){
     // shuffler
     for (int i=0; i<numOfCards;i++){
@@ -95,8 +71,12 @@ void deck::reshuffle(){
 
 void deck::printDeck(){
     std::list<int>::iterator itr;
+    char c1,c2;
+    int num1;
     for (int i=0; i<numOfCards;i++){
-        std::cout << cards.at(i);
+        num1=cards.at(i);
+        if (num1/13==4*numOfPacks){if(num1%2==1){std::cout << "rX ";}else{std::cout << "bX ";}continue;}
+        std::cout << suitID[num1/13] << valueID[num1%13] << ' ';
     }
     std::cout << std::endl;
 }
@@ -107,16 +87,12 @@ void deck::printDeck(){
     the next 4 denote card value.
 */
 std::vector<bool> deck::exportBits(){
-    int bitsPerCard = 4;
-    if (ignoreSuits=false){bitsPerCard+=2;}
-    const int totalBits = bitsPerCard*numOfCards;
     std::vector<bool> deckBits;
-    std::string tempStr;
+    std::bitset<6> b1;
     for (int i=0; i<numOfCards;i++){
-        std::bitset<4> tempBit = cards.at(i);
-        tempStr = tempBit.to_string();
-        for (int j=0; j<bitsPerCard;j++){
-            deckBits.push_back(tempStr[j]=='1');
+        b1=cards.at(i);
+        for (char j: b1.to_string()){
+            deckBits.push_back(j=='1');
         }
     }
     return deckBits;
