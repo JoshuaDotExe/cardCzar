@@ -21,6 +21,8 @@ public:
     template<size_t N1, size_t N2>
     std::bitset<N1+N2> bitConcat(std::bitset<N1>, std::bitset<N2>);
     std::vector<bool> exportBits();
+    std::string exportBitStr();
+    std::string exportStr();
     void build(int, bool);
     void reshuffle();
     void printDeck();
@@ -96,4 +98,28 @@ std::vector<bool> deck::exportBits(){
         }
     }
     return deckBits;
+}
+
+std::string deck::exportBitStr(){
+    std::string s1;
+    std::bitset<6> b1;
+    for (int i=0; i<numOfCards;i++){
+        b1=cards.at(i);
+        s1+=b1.to_string();
+    }
+    return s1;
+}
+
+std::string deck::exportStr(){
+    std::list<int>::iterator itr;
+    std::string s1 = "";
+    char c1,c2;
+    int num1;
+    for (int i=0; i<numOfCards;i++){
+        num1=cards.at(i);
+        if (num1/13==4*numOfPacks){if(num1%2==1){s1+="rX";}else{s1+="bX";}continue;}
+        s1+= suitID[num1/13];
+        s1+= valueID[num1%13];
+    }
+    return s1;
 }
