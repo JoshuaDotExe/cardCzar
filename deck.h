@@ -10,19 +10,21 @@ private:
     std::bitset<2> suitBits[4] = {{0x00},{0x01},{0x10},{0x11}};
     char suitID[4] = {'h', 'd', 'c', 's'};
     std::unordered_map<int, std::string> _indexToStrInit();
+    std::string intToUTF8(int8_t);
 public:
     bool ignoreSuits;
     bool removeJokers;
     int numOfPacks;
     int numOfCards;
     int numOfJokers;
-    std::vector<int> cards;
+    std::vector<unsigned int> cards;
     std::unordered_map<int, std::string> indexToStr = _indexToStrInit();
     template<size_t N1, size_t N2>
     std::bitset<N1+N2> bitConcat(std::bitset<N1>, std::bitset<N2>);
     std::vector<bool> exportBits();
     std::string exportBitStr();
     std::string exportStr();
+    std::string exportUTF8();
     void build(int, bool);
     void reshuffle();
     void printDeck();
@@ -122,4 +124,31 @@ std::string deck::exportStr(){
         s1+= valueID[num1%13];
     }
     return s1;
+}
+
+
+/*  
+    Uses the private intToUTF8() function to encode the deck into equivalent UTF-8
+*/
+std::string deck::exportUTF8(){
+    std::string s1;
+    for (int card: cards){
+        s1.append(intToUTF8(card));
+    }
+    return s1;
+}
+
+/*  
+    Encodes the base integer value of the given card into the UTF-8 standard,
+    using a +48 offset to give nice readable standard characters,
+    ranging from number 1 - lowercase d.
+*/
+std::string deck::intToUTF8(int8_t intIn){
+    std::string out(".");
+    std::bitset<8> x(intIn+48);
+    unsigned long l = x.to_ulong();
+    unsigned char c1 = static_cast<unsigned char>(l);
+    out[0]=c1;
+    
+    return out;
 }

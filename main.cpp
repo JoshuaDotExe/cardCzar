@@ -5,6 +5,7 @@
 #include <string>
 #include <iterator>
 #include <vector>
+#include <fstream>
 
 #include <sqlite3.h>
 
@@ -22,6 +23,13 @@ int main(){
         }
     }
 
+    // deletes test.db file if exists for convenience
+    std::ifstream fileTest;
+    fileTest.open("test.db");
+    if(fileTest){
+        remove("test.db");
+    }
+
     SQLiteDB db;
     
     deck cards;
@@ -29,12 +37,11 @@ int main(){
     int counter;
     int sqlInt1 = sqlite3_open("test.db", &db.db);
 
-    // std::vector<bool> tempVec = cards.exportBits();
-    for (int i=0; i<1; i++){
+    int iter1 = 10000;
+    for (int i=0; i<iter1; i++){
         cards.reshuffle();  // 2.2 seconds @ 1 mil iters
-        if(db.insert(cards.exportStr())){return 0;}
+        if(db.insert(cards.exportUTF8())){return 0;}
         counter=0;
-        std::cout << cards.exportBitStr();
         for(int num: cards.cards){
             pArr[counter][num]+=1;
             counter++;

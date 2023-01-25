@@ -22,7 +22,6 @@ private:
     char *zErrMsg = 0;
     int rc;
     char *sql;
-    int iterNum = 0;
 
     int dbInit();
 public:
@@ -43,7 +42,6 @@ int SQLiteDB::dbInit(){
 
     // Create SQL statement
     sql = "CREATE TABLE SINGLEDECKS(" \
-        "ID INT PRIMARY KEY     NOT NULL,"  \
         "DECK           TEXT    NOT NULL);";
 
     
@@ -67,9 +65,7 @@ int SQLiteDB::insert(std::string sIn){
         return(0);
     } 
 
-    std::string dbInput = "INSERT INTO SINGLEDECKS (ID,DECK) VALUES (" + std::to_string(iterNum);
-    dbInput += ", '" + sIn + "');";
-    iterNum++;
+    std::string dbInput = "INSERT INTO SINGLEDECKS (DECK) VALUES ('"+ sIn + "');";
     rc = sqlite3_exec(db, dbInput.c_str(), callback, 0, &zErrMsg);
     // SQL execute error check
     if (rc != SQLITE_OK){
