@@ -27,19 +27,21 @@ int main(){
     deck cards;
     cards.build();
     int counter;
-    
+    int sqlInt1 = sqlite3_open("test.db", &db.db);
+
     // std::vector<bool> tempVec = cards.exportBits();
-    for (int i=0; i<10000; i++){
+    for (int i=0; i<1; i++){
         cards.reshuffle();  // 2.2 seconds @ 1 mil iters
-        db.insert(cards.exportStr());
+        if(db.insert(cards.exportStr())){return 0;}
         counter=0;
+        std::cout << cards.exportBitStr();
         for(int num: cards.cards){
             pArr[counter][num]+=1;
             counter++;
 
         }
     }
-    std::cout << std::endl;
+    sqlite3_close(db.db);
 }
 
 

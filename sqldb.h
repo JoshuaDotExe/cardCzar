@@ -18,7 +18,7 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 
 class SQLiteDB{
 private:
-    sqlite3 *db;
+    
     char *zErrMsg = 0;
     int rc;
     char *sql;
@@ -26,6 +26,7 @@ private:
 
     int dbInit();
 public:
+    sqlite3 *db;
     int success = dbInit();
     int insert(std::string);
 };
@@ -60,8 +61,6 @@ int SQLiteDB::dbInit(){
 }
 
 int SQLiteDB::insert(std::string sIn){
-    rc = sqlite3_open("test.db", &db);
-    
     // SQL open error check
     if( rc ) {
         fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
@@ -77,6 +76,5 @@ int SQLiteDB::insert(std::string sIn){
         fprintf(stderr,"SQL error %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
     }
-    sqlite3_close(db);
     return 0;
 }
